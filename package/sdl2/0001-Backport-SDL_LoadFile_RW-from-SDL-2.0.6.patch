@@ -1,0 +1,138 @@
+From 7af43139b8f925df8814c842fa0d0a4aafddc402 Mon Sep 17 00:00:00 2001
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
+Date: Fri, 6 Mar 2020 05:43:50 -0800
+Subject: [PATCH 1/1] Backport SDL_LoadFile_RW from SDL 2.0.6
+
+The source code of the function itself is from SDL 2.0.10
+---
+ include/SDL_rwops.h               | 24 ++++++++++++++
+ src/dynapi/SDL_dynapi_overrides.h |  3 ++
+ src/dynapi/SDL_dynapi_procs.h     |  3 ++
+ src/file/SDL_rwops.c              | 54 +++++++++++++++++++++++++++++++
+ 4 files changed, 84 insertions(+)
+
+diff --git a/include/SDL_rwops.h b/include/SDL_rwops.h
+index 4bdd787..35c1810 100644
+--- a/include/SDL_rwops.h
++++ b/include/SDL_rwops.h
+@@ -189,6 +189,30 @@ extern DECLSPEC void SDLCALL SDL_FreeRW(SDL_RWops * area);
+ #define SDL_RWclose(ctx)        (ctx)->close(ctx)
+ /* @} *//* Read/write macros */
+ 
++/* SDL_LoadFile(_RW) is a backport from SDL 2.0.6. */
++
++/**
++ *  Load all the data from an SDL data stream.
++ *
++ *  The data is allocated with a zero byte at the end (null terminated)
++ *
++ *  If \c datasize is not NULL, it is filled with the size of the data read.
++ *
++ *  If \c freesrc is non-zero, the stream will be closed after being read.
++ *
++ *  The data should be freed with SDL_free().
++ *
++ *  \return the data, or NULL if there was an error.
++ */
++extern DECLSPEC void *SDLCALL SDL_LoadFile_RW(SDL_RWops * src, size_t *datasize,
++                                                    int freesrc);
++
++/**
++ *  Load an entire file.
++ *
++ *  Convenience macro.
++ */
++#define SDL_LoadFile(file, datasize)   SDL_LoadFile_RW(SDL_RWFromFile(file, "rb"), datasize, 1)
+ 
+ /**
+  *  \name Read endian functions
+diff --git a/src/dynapi/SDL_dynapi_overrides.h b/src/dynapi/SDL_dynapi_overrides.h
+index f03f4b2..79e3e9d 100644
+--- a/src/dynapi/SDL_dynapi_overrides.h
++++ b/src/dynapi/SDL_dynapi_overrides.h
+@@ -576,3 +576,6 @@
+ #define SDL_GetAssertionHandler SDL_GetAssertionHandler_REAL
+ #define SDL_DXGIGetOutputInfo SDL_DXGIGetOutputInfo_REAL
+ #define SDL_RenderIsClipEnabled SDL_RenderIsClipEnabled_REAL
++
++/* Backport from SDL 2.0.6 */
++#define SDL_LoadFile_RW SDL_LoadFile_RW_REAL
+diff --git a/src/dynapi/SDL_dynapi_procs.h b/src/dynapi/SDL_dynapi_procs.h
+index 9c65205..8a4bdd3 100644
+--- a/src/dynapi/SDL_dynapi_procs.h
++++ b/src/dynapi/SDL_dynapi_procs.h
+@@ -607,3 +607,6 @@ SDL_DYNAPI_PROC(SDL_AssertionHandler,SDL_GetAssertionHandler,(void **a),(a),retu
+ SDL_DYNAPI_PROC(SDL_bool,SDL_DXGIGetOutputInfo,(int a,int *b, int *c),(a,b,c),return)
+ #endif
+ SDL_DYNAPI_PROC(SDL_bool,SDL_RenderIsClipEnabled,(SDL_Renderer *a),(a),return)
++
++/* Backport from SDL 2.0.6 */
++SDL_DYNAPI_PROC(void*,SDL_LoadFile_RW,(SDL_RWops *a, size_t *b, int c),(a,b,c),return)
+diff --git a/src/file/SDL_rwops.c b/src/file/SDL_rwops.c
+index afa35d0..fcb44d1 100644
+--- a/src/file/SDL_rwops.c
++++ b/src/file/SDL_rwops.c
+@@ -649,6 +649,60 @@ SDL_FreeRW(SDL_RWops * area)
+     SDL_free(area);
+ }
+ 
++/* Backport from SDL 2.0.6 */
++/* Load all the data from an SDL data stream */
++void *
++SDL_LoadFile_RW(SDL_RWops * src, size_t *datasize, int freesrc)
++{
++    const int FILE_CHUNK_SIZE = 1024;
++    Sint64 size;
++    size_t size_read, size_total;
++    void *data = NULL, *newdata;
++
++    if (!src) {
++        SDL_InvalidParamError("src");
++        return NULL;
++    }
++
++    size = SDL_RWsize(src);
++    if (size < 0) {
++        size = FILE_CHUNK_SIZE;
++    }
++    data = SDL_malloc((size_t)(size + 1));
++
++    size_total = 0;
++    for (;;) {
++        if ((((Sint64)size_total) + FILE_CHUNK_SIZE) > size) {
++            size = (size_total + FILE_CHUNK_SIZE);
++            newdata = SDL_realloc(data, (size_t)(size + 1));
++            if (!newdata) {
++                SDL_free(data);
++                data = NULL;
++                SDL_OutOfMemory();
++                goto done;
++            }
++            data = newdata;
++        }
++
++        size_read = SDL_RWread(src, (char *)data+size_total, 1, (size_t)(size-size_total));
++        if (size_read == 0) {
++            break;
++        }
++        size_total += size_read;
++    }
++
++    if (datasize) {
++        *datasize = size_total;
++    }
++    ((char *)data)[size_total] = '\0';
++
++done:
++    if (freesrc && src) {
++        SDL_RWclose(src);
++    }
++    return data;
++}
++
+ /* Functions for dynamically reading and writing endian-specific values */
+ 
+ Uint8
+-- 
+2.20.1
+

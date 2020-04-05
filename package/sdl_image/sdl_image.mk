@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-SDL_IMAGE_VERSION = 1.2.12
-SDL_IMAGE_SOURCE = SDL_image-$(SDL_IMAGE_VERSION).tar.gz
-SDL_IMAGE_SITE = http://www.libsdl.org/projects/SDL_image/release
+SDL_IMAGE_VERSION = a66b2dd7687b
+SDL_IMAGE_SOURCE = $(SDL_IMAGE_VERSION).tar.gz
+SDL_IMAGE_SITE = https://hg.libsdl.org/SDL_image/archive
 SDL_IMAGE_INSTALL_STAGING = YES
-SDL_IMAGE_LICENSE = Zlib
+SDL_IMAGE_LICENSE = zlib
 SDL_IMAGE_LICENSE_FILES = COPYING
 
 SDL_IMAGE_CONF_OPTS = \
@@ -50,7 +50,6 @@ HOST_SDL_IMAGE_CONF_OPTS = \
 	--disable-tif-shared \
 	--disable-webp-shared
 
-HOST_SDL_IMAGE_DEPENDENCIES = host-libjpeg host-libpng host-sdl
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))
