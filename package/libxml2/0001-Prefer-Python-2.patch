@@ -1,0 +1,37 @@
+From a54367442a6448ec77a569994ccb8addecdd4e8b Mon Sep 17 00:00:00 2001
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
+Date: Sun, 5 Apr 2020 06:44:08 +0100
+Subject: [PATCH] Prefer Python 2
+
+Needed by mesa3d-etna_viv
+---
+ configure.ac | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/configure.ac b/configure.ac
+index 07113a8..37f5d79 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -812,6 +812,11 @@ PYTHON_SITE_PACKAGES=
+ PYTHON_TESTS=
+ pythondir=
+ if test "$with_python" != "no" ; then
++    if test -x "$with_python/bin/python2"
++    then
++        echo Found python2 in $with_python/bin/python2
++        PYTHON="$with_python/bin/python2"
++    else
+     if test -x "$with_python/bin/python"
+     then
+         echo Found python in $with_python/bin/python
+@@ -837,6 +842,7 @@ if test "$with_python" != "no" ; then
+ 	    fi
+ 	fi
+     fi
++    fi
+     if test "$PYTHON" != ""
+     then
+         PYTHON_VERSION=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_version())"`
+-- 
+2.25.1
+
