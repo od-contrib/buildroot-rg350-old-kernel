@@ -25,7 +25,21 @@ LIBXML2_CONF_OPTS = --with-gnu-ld --without-python --without-debug
 HOST_LIBXML2_DEPENDENCIES = host-pkgconf
 LIBXML2_DEPENDENCIES = host-pkgconf
 
-HOST_LIBXML2_CONF_OPTS = --without-zlib --without-lzma --without-python
+HOST_LIBXML2_CONF_OPTS = --without-zlib --without-lzma
+
+# mesa3d uses functions that are only available with debug
+ifeq ($(BR2_PACKAGE_MESA3D),y)
+HOST_LIBXML2_CONF_OPTS += --with-debug
+else
+HOST_LIBXML2_CONF_OPTS += --without-debug
+endif
+
+ifeq ($(BR2_PACKAGE_HOST_LIBXML2_PYTHON),y)
+HOST_LIBXML2_DEPENDENCIES += host-python
+HOST_LIBXML2_CONF_OPTS += --with-python=$(HOST_DIR)/usr
+else
+HOST_LIBXML2_CONF_OPTS += --without-python
+endif
 
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 LIBXML2_DEPENDENCIES += zlib
