@@ -1,0 +1,20 @@
+config BR2_PACKAGE_ESOTERIC
+	bool "esoteric"
+	select BR2_PACKAGE_DEJAVU
+	select BR2_PACKAGE_LIBPNG
+	select BR2_PACKAGE_SDL
+	select BR2_PACKAGE_SDL_TTF
+	select BR2_PACKAGE_SDL_GFX
+	help
+	  Application menu for devices with a 320x240 screen and buttons.
+
+	  Esoteric is a fork of GMenu2X developed for the ANBERNICRG-350 - (hence 350teric), released under the GNU GPL license v2.
+
+	  https://github.com/podulator/gmenunx
+
+if BR2_PACKAGE_ESOTERIC
+
+config BR2_PACKAGE_ESOTERIC_PLATFORM
+	string "Target platform"
+
+endif

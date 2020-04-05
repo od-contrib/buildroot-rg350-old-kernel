@@ -1,0 +1,42 @@
+menu "OpenDingux packages"
+comment "Emulators"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/pcsx4all/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/pocketsnes/Config.in"
+
+comment "Frontends"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/esoteric/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/gmenu2x/Config.in"
+
+comment "Games"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/blockattack/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/gng/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/hocoslamfy/Config.in"
+
+comment "Libraries"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/allegro/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/devil/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libini/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libopk/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libpng14/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libshake/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libxdgmime/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/love2d/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/utf8cpp/Config.in"
+
+comment "System tools"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/dingux-commander/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/od-network-config/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/pwswd/Config.in"
+
+comment "Utilities"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/bar/Config.in"
+
+comment "Graphics drivers"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/etna_viv/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/mesa3d-etna_viv/Config.in"
+
+comment "Hardware handling"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/lowpowd/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/unlockvt/Config.in"
+
+endmenu
