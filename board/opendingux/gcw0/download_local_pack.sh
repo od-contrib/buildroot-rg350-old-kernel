@@ -144,9 +144,6 @@ dl 'https://github.com/Ninoh-FOX/PrBoom-plus-for-RG350/releases/latest/download/
 # EDuke32 | Duke Nukem 3D
 dl "${RGH_OD_REPO}/Games%20%26%20Ports/EDuke32.opk"
 
-# DevilutionX | Diablo
-dl https://github.com/diasurgical/devilutionX/releases/latest/download/devilutionx-rg350.opk
-
 ## Games
 
 # Arkanoid
