@@ -1,0 +1,20 @@
+GCC 5.1+ uses a different ABI from earlier releases.
+
+gmenu2x uses `execvp()` to launch apps.
+The C `exec*` functions do not reload shared libs in memory but only replace main module and load new shared libs.
+If launching an app compiled with GCC 4.9, there would be an ABI conflict.
+
+This patch enables the GCC C++ Dual ABI feature to let gmenu2x launch both old and new ABI apps.
+See https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
+
+--- ./src/Makefile.am.orig	2020-01-31 23:06:50.345918545 +0800
++++ ./src/Makefile.am	2020-01-31 23:05:17.475933881 +0800
+@@ -33,6 +33,7 @@
+ 
+ AM_CXXFLAGS = @CXXFLAGS@ @SDL_CFLAGS@ \
+ 	-fno-exceptions \
+-	-Wall -Wextra -Wundef -Wunused-macros -std=c++11
++	-Wall -Wextra -Wundef -Wunused-macros -std=c++11 \
++	-D_GLIBCXX_USE_CXX11_ABI=0
+ 
+ gmenu2x_LDADD = @LIBS@ @SDL_LIBS@

@@ -1,0 +1,10 @@
+config BR2_PACKAGE_DINGUX_COMMANDER
+	bool "DinguxCommander"
+	select BR2_PACKAGE_SDL
+	select BR2_PACKAGE_SDL_GFX
+	select BR2_PACKAGE_SDL_IMAGE
+	select BR2_PACKAGE_SDL_TTF
+	help
+	  Two-pane file manager in the style of Norton Commander.
+
+	  https://github.com/glebm/rs97-commander/
