@@ -1,0 +1,359 @@
+From aad9b54625686b25b512661a36c7a0915eaa1535 Mon Sep 17 00:00:00 2001
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
+Date: Sun, 5 Apr 2020 09:01:04 +0100
+Subject: [PATCH] lua-gt-501-compat
+
+---
+ .../luasocket/libluasocket/auxiliar.c         |  4 +--
+ .../luasocket/libluasocket/auxiliar.h         |  2 +-
+ src/libraries/luasocket/libluasocket/buffer.c |  2 +-
+ src/libraries/luasocket/libluasocket/except.c |  2 +-
+ src/libraries/luasocket/libluasocket/inet.c   |  2 +-
+ .../luasocket/libluasocket/luasocket.c        |  4 +--
+ src/libraries/luasocket/libluasocket/mime.c   | 30 +++++++++----------
+ .../luasocket/libluasocket/options.c          |  4 +--
+ src/libraries/luasocket/libluasocket/select.c |  2 +-
+ src/libraries/luasocket/libluasocket/tcp.c    |  4 +--
+ .../luasocket/libluasocket/timeout.c          |  2 +-
+ src/libraries/luasocket/libluasocket/udp.c    |  4 +--
+ src/libraries/luasocket/libluasocket/unix.c   |  4 +--
+ 13 files changed, 33 insertions(+), 33 deletions(-)
+
+diff --git a/src/libraries/luasocket/libluasocket/auxiliar.c b/src/libraries/luasocket/libluasocket/auxiliar.c
+index 9514970..c2f5dee 100644
+--- a/src/libraries/luasocket/libluasocket/auxiliar.c
++++ b/src/libraries/luasocket/libluasocket/auxiliar.c
+@@ -24,7 +24,7 @@ int auxiliar_open(lua_State *L) {
+ * Creates a new class with given methods
+ * Methods whose names start with __ are passed directly to the metatable.
+ \*-------------------------------------------------------------------------*/
+-void auxiliar_newclass(lua_State *L, const char *classname, luaL_reg *func) {
++void auxiliar_newclass(lua_State *L, const char *classname, luaL_Reg *func) {
+     luaL_newmetatable(L, classname); /* mt */
+     /* create __index table to place methods */
+     lua_pushstring(L, "__index");    /* mt,"__index" */
+@@ -81,7 +81,7 @@ void auxiliar_add2group(lua_State *L, const char *classname, const char *groupna
+ \*-------------------------------------------------------------------------*/
+ int auxiliar_checkboolean(lua_State *L, int objidx) {
+     if (!lua_isboolean(L, objidx))
+-        luaL_typerror(L, objidx, lua_typename(L, LUA_TBOOLEAN));
++        luax_typerror(L, objidx, lua_typename(L, LUA_TBOOLEAN));
+     return lua_toboolean(L, objidx);
+ }
+ 
+diff --git a/src/libraries/luasocket/libluasocket/auxiliar.h b/src/libraries/luasocket/libluasocket/auxiliar.h
+index 18b8495..a4df9eb 100644
+--- a/src/libraries/luasocket/libluasocket/auxiliar.h
++++ b/src/libraries/luasocket/libluasocket/auxiliar.h
+@@ -35,7 +35,7 @@
+ #include "lauxlib.h"
+ 
+ int auxiliar_open(lua_State *L);
+-void auxiliar_newclass(lua_State *L, const char *classname, luaL_reg *func);
++void auxiliar_newclass(lua_State *L, const char *classname, luaL_Reg *func);
+ void auxiliar_add2group(lua_State *L, const char *classname, const char *group);
+ void auxiliar_setclass(lua_State *L, const char *classname, int objidx);
+ void *auxiliar_checkclass(lua_State *L, const char *classname, int objidx);
+diff --git a/src/libraries/luasocket/libluasocket/buffer.c b/src/libraries/luasocket/libluasocket/buffer.c
+index 73f4ffa..a079f25 100644
+--- a/src/libraries/luasocket/libluasocket/buffer.c
++++ b/src/libraries/luasocket/libluasocket/buffer.c
+@@ -225,7 +225,7 @@ static int recvline(p_buffer buf, luaL_Buffer *b) {
+         pos = 0;
+         while (pos < count && data[pos] != '\n') {
+             /* we ignore all \r's */
+-            if (data[pos] != '\r') luaL_putchar(b, data[pos]);
++            if (data[pos] != '\r') luaL_addchar(b, data[pos]);
+             pos++;
+         }
+         if (pos < count) { /* found '\n' */
+diff --git a/src/libraries/luasocket/libluasocket/except.c b/src/libraries/luasocket/libluasocket/except.c
+index 5faa5be..97c00a3 100644
+--- a/src/libraries/luasocket/libluasocket/except.c
++++ b/src/libraries/luasocket/libluasocket/except.c
+@@ -21,7 +21,7 @@ static int finalize(lua_State *L);
+ static int do_nothing(lua_State *L);
+ 
+ /* except functions */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"newtry",    global_newtry},
+     {"protect",   global_protect},
+     {NULL,        NULL}
+diff --git a/src/libraries/luasocket/libluasocket/inet.c b/src/libraries/luasocket/libluasocket/inet.c
+index f2cddee..7c34707 100644
+--- a/src/libraries/luasocket/libluasocket/inet.c
++++ b/src/libraries/luasocket/libluasocket/inet.c
+@@ -21,7 +21,7 @@ static void inet_pushresolved(lua_State *L, struct hostent *hp);
+ static int inet_global_gethostname(lua_State *L);
+ 
+ /* DNS functions */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     { "toip", inet_global_toip },
+     { "tohostname", inet_global_tohostname },
+     { "gethostname", inet_global_gethostname},
+diff --git a/src/libraries/luasocket/libluasocket/luasocket.c b/src/libraries/luasocket/libluasocket/luasocket.c
+index 0d10bb1..3b8a7c4 100644
+--- a/src/libraries/luasocket/libluasocket/luasocket.c
++++ b/src/libraries/luasocket/libluasocket/luasocket.c
+@@ -47,7 +47,7 @@ static int base_open(lua_State *L);
+ /*-------------------------------------------------------------------------*\
+ * Modules and functions
+ \*-------------------------------------------------------------------------*/
+-static const luaL_reg mod[] = {
++static const luaL_Reg mod[] = {
+     {"auxiliar", auxiliar_open},
+     {"except", except_open},
+     {"timeout", timeout_open},
+@@ -59,7 +59,7 @@ static const luaL_reg mod[] = {
+     {NULL, NULL}
+ };
+ 
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"skip",      global_skip},
+     {"__unload",  global_unload},
+     {NULL,        NULL}
+diff --git a/src/libraries/luasocket/libluasocket/mime.c b/src/libraries/luasocket/libluasocket/mime.c
+index 700fa05..efb0c0d 100644
+--- a/src/libraries/luasocket/libluasocket/mime.c
++++ b/src/libraries/luasocket/libluasocket/mime.c
+@@ -48,7 +48,7 @@ static size_t qpencode(UC c, UC *input, size_t size,
+ static size_t qppad(UC *input, size_t size, luaL_Buffer *buffer);
+ 
+ /* code support functions */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     { "dot", mime_global_dot },
+     { "b64", mime_global_b64 },
+     { "eol", mime_global_eol },
+@@ -135,7 +135,7 @@ static int mime_global_wrp(lua_State *L)
+                     left = length;
+                     luaL_addstring(&buffer, CRLF);
+                 }
+-                luaL_putchar(&buffer, *input);
++                luaL_addchar(&buffer, *input);
+                 left--;
+                 break;
+         }
+@@ -368,9 +368,9 @@ static void qpsetup(UC *qpclass, UC *qpunbase)
+ \*-------------------------------------------------------------------------*/
+ static void qpquote(UC c, luaL_Buffer *buffer)
+ {
+-    luaL_putchar(buffer, '=');
+-    luaL_putchar(buffer, qpbase[c >> 4]);
+-    luaL_putchar(buffer, qpbase[c & 0x0F]);
++    luaL_addchar(buffer, '=');
++    luaL_addchar(buffer, qpbase[c >> 4]);
++    luaL_addchar(buffer, qpbase[c & 0x0F]);
+ }
+ 
+ /*-------------------------------------------------------------------------*\
+@@ -400,7 +400,7 @@ static size_t qpencode(UC c, UC *input, size_t size,
+                     qpquote(input[0], buffer);
+                     luaL_addstring(buffer, marker);
+                     return 0;
+-                } else luaL_putchar(buffer, input[0]);
++                } else luaL_addchar(buffer, input[0]);
+                 break;
+                 /* might have to be quoted always */
+             case QP_QUOTED:
+@@ -408,7 +408,7 @@ static size_t qpencode(UC c, UC *input, size_t size,
+                 break;
+                 /* might never have to be quoted */
+             default:
+-                luaL_putchar(buffer, input[0]);
++                luaL_addchar(buffer, input[0]);
+                 break;
+         }
+         input[0] = input[1]; input[1] = input[2];
+@@ -424,7 +424,7 @@ static size_t qppad(UC *input, size_t size, luaL_Buffer *buffer)
+ {
+     size_t i;
+     for (i = 0; i < size; i++) {
+-        if (qpclass[input[i]] == QP_PLAIN) luaL_putchar(buffer, input[i]);
++        if (qpclass[input[i]] == QP_PLAIN) luaL_addchar(buffer, input[i]);
+         else qpquote(input[i], buffer);
+     }
+     if (size > 0) luaL_addstring(buffer, EQCRLF);
+@@ -494,7 +494,7 @@ static size_t qpdecode(UC c, UC *input, size_t size, luaL_Buffer *buffer) {
+             c = qpunbase[input[1]]; d = qpunbase[input[2]];
+             /* if it is an invalid, do not decode */
+             if (c > 15 || d > 15) luaL_addlstring(buffer, (char *)input, 3);
+-            else luaL_putchar(buffer, (c << 4) + d);
++            else luaL_addchar(buffer, (c << 4) + d);
+             return 0;
+         case '\r':
+             if (size < 2) return size; 
+@@ -502,7 +502,7 @@ static size_t qpdecode(UC c, UC *input, size_t size, luaL_Buffer *buffer) {
+             return 0;
+         default:
+             if (input[0] == '\t' || (input[0] > 31 && input[0] < 127))
+-                luaL_putchar(buffer, input[0]);
++                luaL_addchar(buffer, input[0]);
+             return 0;
+     }
+ }
+@@ -587,7 +587,7 @@ static int mime_global_qpwrp(lua_State *L)
+                     left = length;
+                     luaL_addstring(&buffer, EQCRLF);
+                 } 
+-                luaL_putchar(&buffer, *input);
++                luaL_addchar(&buffer, *input);
+                 left--;
+                 break;
+             default: 
+@@ -595,7 +595,7 @@ static int mime_global_qpwrp(lua_State *L)
+                     left = length;
+                     luaL_addstring(&buffer, EQCRLF);
+                 }
+-                luaL_putchar(&buffer, *input);
++                luaL_addchar(&buffer, *input);
+                 left--;
+                 break;
+         }
+@@ -630,7 +630,7 @@ static int eolprocess(int c, int last, const char *marker,
+             return c;
+         }
+     } else {
+-        luaL_putchar(buffer, c);
++        luaL_addchar(buffer, c);
+         return 0;
+     }
+ }
+@@ -670,7 +670,7 @@ static int mime_global_eol(lua_State *L)
+ \*-------------------------------------------------------------------------*/
+ static size_t dot(int c, size_t state, luaL_Buffer *buffer)
+ {
+-    luaL_putchar(buffer, c);
++    luaL_addchar(buffer, c);
+     switch (c) {
+         case '\r': 
+             return 1;
+@@ -678,7 +678,7 @@ static size_t dot(int c, size_t state, luaL_Buffer *buffer)
+             return (state == 1)? 2: 0; 
+         case '.':  
+             if (state == 2) 
+-                luaL_putchar(buffer, '.');
++                luaL_addchar(buffer, '.');
+         default:
+             return 0;
+     }
+diff --git a/src/libraries/luasocket/libluasocket/options.c b/src/libraries/luasocket/libluasocket/options.c
+index 5da3c51..ef95760 100644
+--- a/src/libraries/luasocket/libluasocket/options.c
++++ b/src/libraries/luasocket/libluasocket/options.c
+@@ -75,7 +75,7 @@ int opt_ip_multicast_loop(lua_State *L, p_socket ps)
+ int opt_linger(lua_State *L, p_socket ps)
+ {
+     struct linger li;                      /* obj, name, table */
+-    if (!lua_istable(L, 3)) luaL_typerror(L, 3, lua_typename(L, LUA_TTABLE));
++    if (!lua_istable(L, 3)) luax_typerror(L, 3, lua_typename(L, LUA_TTABLE));
+     lua_pushstring(L, "on");
+     lua_gettable(L, 3);
+     if (!lua_isboolean(L, -1)) 
+@@ -111,7 +111,7 @@ int opt_ip_drop_membersip(lua_State *L, p_socket ps)
+ static int opt_setmembership(lua_State *L, p_socket ps, int level, int name)
+ {
+     struct ip_mreq val;                   /* obj, name, table */
+-    if (!lua_istable(L, 3)) luaL_typerror(L, 3, lua_typename(L, LUA_TTABLE));
++    if (!lua_istable(L, 3)) luax_typerror(L, 3, lua_typename(L, LUA_TTABLE));
+     lua_pushstring(L, "multiaddr");
+     lua_gettable(L, 3);
+     if (!lua_isstring(L, -1)) 
+diff --git a/src/libraries/luasocket/libluasocket/select.c b/src/libraries/luasocket/libluasocket/select.c
+index d70f662..6071e7a 100644
+--- a/src/libraries/luasocket/libluasocket/select.c
++++ b/src/libraries/luasocket/libluasocket/select.c
+@@ -27,7 +27,7 @@ static void make_assoc(lua_State *L, int tab);
+ static int global_select(lua_State *L);
+ 
+ /* functions in library namespace */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"select", global_select},
+     {NULL,     NULL}
+ };
+diff --git a/src/libraries/luasocket/libluasocket/tcp.c b/src/libraries/luasocket/libluasocket/tcp.c
+index 6b8a79b..af21ca3 100644
+--- a/src/libraries/luasocket/libluasocket/tcp.c
++++ b/src/libraries/luasocket/libluasocket/tcp.c
+@@ -38,7 +38,7 @@ static int meth_setfd(lua_State *L);
+ static int meth_dirty(lua_State *L);
+ 
+ /* tcp object methods */
+-static luaL_reg tcp[] = {
++static luaL_Reg tcp[] = {
+     {"__gc",        meth_close},
+     {"__tostring",  auxiliar_tostring},
+     {"accept",      meth_accept},
+@@ -73,7 +73,7 @@ static t_opt opt[] = {
+ };
+ 
+ /* functions in library namespace */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"tcp", global_create},
+     {NULL, NULL}
+ };
+diff --git a/src/libraries/luasocket/libluasocket/timeout.c b/src/libraries/luasocket/libluasocket/timeout.c
+index c1df102..19b0139 100644
+--- a/src/libraries/luasocket/libluasocket/timeout.c
++++ b/src/libraries/luasocket/libluasocket/timeout.c
+@@ -33,7 +33,7 @@
+ static int timeout_lua_gettime(lua_State *L);
+ static int timeout_lua_sleep(lua_State *L);
+ 
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     { "gettime", timeout_lua_gettime },
+     { "sleep", timeout_lua_sleep },
+     { NULL, NULL }
+diff --git a/src/libraries/luasocket/libluasocket/udp.c b/src/libraries/luasocket/libluasocket/udp.c
+index fc25aa0..720a8c6 100644
+--- a/src/libraries/luasocket/libluasocket/udp.c
++++ b/src/libraries/luasocket/libluasocket/udp.c
+@@ -43,7 +43,7 @@ static int meth_setfd(lua_State *L);
+ static int meth_dirty(lua_State *L);
+ 
+ /* udp object methods */
+-static luaL_reg udp[] = {
++static luaL_Reg udp[] = {
+     {"__gc",        meth_close},
+     {"__tostring",  auxiliar_tostring},
+     {"close",       meth_close},
+@@ -76,7 +76,7 @@ static t_opt opt[] = {
+ };
+ 
+ /* functions in library namespace */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"udp", global_create},
+     {NULL, NULL}
+ };
+diff --git a/src/libraries/luasocket/libluasocket/unix.c b/src/libraries/luasocket/libluasocket/unix.c
+index 158d319..96074ff 100644
+--- a/src/libraries/luasocket/libluasocket/unix.c
++++ b/src/libraries/luasocket/libluasocket/unix.c
+@@ -39,7 +39,7 @@ static const char *unix_tryconnect(p_unix un, const char *path);
+ static const char *unix_trybind(p_unix un, const char *path);
+ 
+ /* unix object methods */
+-static luaL_reg un[] = {
++static luaL_Reg un[] = {
+     {"__gc",        meth_close},
+     {"__tostring",  auxiliar_tostring},
+     {"accept",      meth_accept},
+@@ -71,7 +71,7 @@ static t_opt opt[] = {
+ };
+ 
+ /* our socket creation function */
+-static luaL_reg func[] = {
++static luaL_Reg func[] = {
+     {"unix", global_create},
+     {NULL,          NULL}
+ };
+-- 
+2.25.1
+
