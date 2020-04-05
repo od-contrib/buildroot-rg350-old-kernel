@@ -19,8 +19,8 @@ else
 LOVE2D_CONF_OPTS += --disable-mpg123
 endif
 
-ifeq ($(BR2_PACKAGE_OPENAL_SOFT),y)
-LOVE2D_DEPENDENCIES += openal-soft
+ifeq ($(BR2_PACKAGE_OPENAL),y)
+LOVE2D_DEPENDENCIES += openal
 else
 LOVE2D_CONF_OPTS += --disable-implementation-audio-openal
 endif
