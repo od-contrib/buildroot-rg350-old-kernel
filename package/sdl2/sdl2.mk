@@ -4,15 +4,24 @@
 #
 ################################################################################
 
-SDL2_VERSION = 2.0.14
-SDL2_SOURCE = SDL2-$(SDL2_VERSION).tar.gz
-SDL2_SITE = http://www.libsdl.org/release
+SDL2_VERSION = 80845185741f0c6d6723eb66a5eac9c7ae6970f1
+SDL2_SITE = $(call github,od-contrib,SDL2-fbdev,$(SDL2_VERSION))
 SDL2_LICENSE = Zlib
 SDL2_LICENSE_FILES = COPYING.txt
 SDL2_CPE_ID_VENDOR = libsdl
 SDL2_CPE_ID_PRODUCT = simple_directmedia_layer
 SDL2_INSTALL_STAGING = YES
 SDL2_CONFIG_SCRIPTS = sdl2-config
+
+SDL2_DEPENDENCIES += mesa3d-etna_viv
+SDL2_CONF_OPTS += --enable-video-fbdev --disable-video-vulkan --disable-video-dummy
+
+define SDL2_VGA_PATCH
+	$(APPLY_PATCHES) $(@D) $(SDL2_PKGDIR) 0001-sdl2-vga.patch.conditional
+endef
+ifeq ($(BR2_TARGET_DEVICE),"rg350m")
+SDL2_POST_PATCH_HOOKS += SDL2_VGA_PATCH
+endif
 
 SDL2_CONF_OPTS += \
 	--disable-rpath \
