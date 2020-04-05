@@ -49,9 +49,11 @@ endif
 ifeq ($(BR2_TOOLCHAIN_USES_MUSL),y)
 LIBOPENSSL_CFLAGS += -DOPENSSL_NO_ASYNC
 endif
-ifeq ($(BR2_TOOLCHAIN_HAS_UCONTEXT),)
+
+# BR2_TOOLCHAIN_HAS_UCONTEXT is y for RG350 but ucontext_t isn't actually available.
+# ifeq ($(BR2_TOOLCHAIN_HAS_UCONTEXT),)
 LIBOPENSSL_CFLAGS += -DOPENSSL_NO_ASYNC
-endif
+# endif
 
 define HOST_LIBOPENSSL_CONFIGURE_CMDS
 	(cd $(@D); \
