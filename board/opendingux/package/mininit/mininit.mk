@@ -4,7 +4,7 @@
 #
 #############################################################
 
-MININIT_VERSION = 429a1d019a9a1fe5d3662567cd958a54d963e0ff
+MININIT_VERSION = 429a1d019a
 MININIT_SITE = $(call github,OpenDingux,mininit,$(MININIT_VERSION))
 
 define MININIT_BUILD_CMDS
