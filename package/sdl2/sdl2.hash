@@ -2,3 +2,5 @@
 sha256  349268f695c02efbc9b9148a70b85e58cefbbf704abd3e91be654db7f1e2c863  SDL2-2.0.12.tar.gz
 # Locally calculated
 sha256  ae4df3759a726538607b84c00ab8f8a5567d9f38ad5397486eb9b5c5f626caef  COPYING.txt
+# Locally calculated
+sha256  cc8b7bdb4902462476fea610d7bd7941e2b7ed0c787b695bb885ca910652dfc8  sdl2-c16eafdb4.tar.gz

@@ -1,0 +1,24 @@
+From caf3ced33f3b4d40cba42bef3b0daf8c2b8980c4 Mon Sep 17 00:00:00 2001
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
+Date: Sun, 26 Apr 2020 22:16:24 +0100
+Subject: [PATCH] RG350 SDL2 controller mappings
+
+---
+ src/joystick/SDL_gamecontrollerdb.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/joystick/SDL_gamecontrollerdb.h b/src/joystick/SDL_gamecontrollerdb.h
+index 967027b94..a1cdd8348 100644
+--- a/src/joystick/SDL_gamecontrollerdb.h
++++ b/src/joystick/SDL_gamecontrollerdb.h
+@@ -31,6 +31,7 @@
+  */
+ static const char *s_ControllerMappings [] =
+ {
++    "190000006c696e6b6465762064657600,RG350,platform:Linux,x:b3,a:b0,b:b1,y:b2,back:b8,start:b9,dpleft:h0.8,dpdown:h0.4,dpright:h0.2,dpup:h0.1,leftshoulder:b4,lefttrigger:b6,rightshoulder:b5,righttrigger:b7,leftstick:b10,rightstick:b11,leftx:a0,lefty:a1,rightx:a2,righty:a3,",
+ #if SDL_JOYSTICK_XINPUT
+     "xinput,XInput Controller,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b10,leftshoulder:b4,leftstick:b8,lefttrigger:a2,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b9,righttrigger:a5,rightx:a3,righty:a4,start:b7,x:b2,y:b3,",
+ #endif
+-- 
+2.25.1
+
