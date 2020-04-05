@@ -1,0 +1,17 @@
+config BR2_PACKAGE_DEVILUTIONX
+	bool "DevilutionX"
+	select BR2_PACKAGE_SDL
+	select BR2_PACKAGE_SDL_IMAGE
+	select BR2_PACKAGE_SDL_TTF
+	select BR2_PACKAGE_SDL_MIXER
+	help
+	  Diablo 1.
+
+	  https://github.com/diasurgical/devilutionX/
+
+if BR2_PACKAGE_DEVILUTIONX
+config BR2_PACKAGE_DEVILUTIONX_TARGET_PLATFORM
+	string "Target platform (required)"
+  help
+	  One of the target platforms supported by DevilutionX.
+endif

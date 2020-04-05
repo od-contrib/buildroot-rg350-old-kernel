@@ -9,6 +9,7 @@ comment "Frontends"
 
 comment "Games"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/blockattack/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/devilutionx/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/gng/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/hocoslamfy/Config.in"
 
