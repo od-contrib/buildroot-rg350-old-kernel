@@ -22,6 +22,7 @@ BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_EUDEV=y
 BR2_ROOTFS_SKELETON_CUSTOM=y
 BR2_ROOTFS_SKELETON_CUSTOM_PATH="board/opendingux/gcw0/target_skeleton"
 BR2_TARGET_TZ_INFO=y
+BR2_ROOTFS_OVERLAY="board/opendingux/gcw0/overlay"
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/opendingux/gcw0/post-build-script.sh"
 BR2_ROOTFS_POST_IMAGE_SCRIPT="board/opendingux/gcw0/build-linux-modules-squashfs.sh"
 BR2_LINUX_KERNEL=y
