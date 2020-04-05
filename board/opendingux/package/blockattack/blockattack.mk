@@ -9,7 +9,7 @@ BLOCKATTACK_SITE = $(call github,blockattack,blockattack-game,$(BLOCKATTACK_VERS
 
 BLOCKATTACK_DEPENDENCIES += sdl2 sdl2_image sdl2_ttf sdl2_mixer boost physfs utf8cpp gettext
 
-BLOCKATTACK_CONF_OPTS += -DBoost_USE_STATIC_LIBS=ON \
+BLOCKATTACK_CONF_OPTS += \
   -DCMAKE_CXX_FLAGS="-I$(STAGING_DIR)/usr/include/utf8cpp" \
   -DCMAKE_EXE_LINKER_FLAGS=-lintl \
   -DSTANDALONE=ON -DINSTALL_DATA_DIR=. -DCMAKE_INSTALL_PREFIX=/

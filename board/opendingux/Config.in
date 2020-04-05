@@ -39,4 +39,7 @@ comment "Hardware handling"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/lowpowd/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/unlockvt/Config.in"
 
+comment "Bootloaders"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/boot/ubiboot/Config.in"
+
 endmenu
