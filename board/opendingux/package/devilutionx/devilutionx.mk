@@ -17,8 +17,8 @@ define DEVILUTIONX_INSTALL_TARGET_CMDS
 	mkdir -p $(@D)/build-$(DEVILUTIONX_TARGET_PLATFORM)/
 	cp $(@D)/devilutionx $(@D)/build-$(DEVILUTIONX_TARGET_PLATFORM)/
 	cd $(@D) && Packaging/OpenDingux/package-opk.sh $(DEVILUTIONX_TARGET_PLATFORM)
-	$(INSTALL) -m 0755 -D $(@D)/build-$(DEVILUTIONX_TARGET_PLATFORM)/devilutionx-$(DEVILUTIONX_TARGET_PLATFORM).opk \
-		$(BINARIES_DIR)/opks/devilutionx-$(DEVILUTIONX_TARGET_PLATFORM).opk
+	$(INSTALL) -D -m 0644 $(@D)/build-$(DEVILUTIONX_TARGET_PLATFORM)/devilutionx-$(DEVILUTIONX_TARGET_PLATFORM).opk \
+	  $(BINARIES_DIR)/opks/
 endef
 
 $(eval $(cmake-package))
