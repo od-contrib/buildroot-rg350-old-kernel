@@ -7,7 +7,7 @@
 
 set -e
 
-make rg350_defconfig BR2_EXTERNAL_OPENDINGUX_PATH=board/opendingux
+make rg350_defconfig BR2_EXTERNAL=board/opendingux:opks
 make world mininit host-od-imager
 
 # Data image (OPKs):
