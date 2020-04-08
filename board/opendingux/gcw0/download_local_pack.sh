@@ -121,6 +121,9 @@ dl "${SEONG_RG350_REPO}/Emulators/NEO4All_2019-12-16.opk"
 # NGPCEmu | SNK Neo-Geo Pocket (B/W, Color)
 dl https://gameblabla.nl/files/ipk/gcw0/ngpcemu_gcw0.opk
 
+# FinalBurn Alpha | Arcades
+dl https://github.com/od-contrib/opks/releases/latest/download/fba-rg350.opk
+
 # Retro8
 dl https://github.com/Jakz/retro8/releases/download/0.1b/retro8_v1b_20200108.opk
 
