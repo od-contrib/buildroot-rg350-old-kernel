@@ -7,7 +7,7 @@ This buildroot can be used to build RG350 cross-compilation toolchain and the OS
 First, clone or download the repo and run:
 
 ~~~bash
-make rg350_defconfig BR2_EXTERNAL=board/opendingux
+make rg350_defconfig BR2_EXTERNAL=board/opendingux:opks
 ~~~
 
 You only need to run this once.
