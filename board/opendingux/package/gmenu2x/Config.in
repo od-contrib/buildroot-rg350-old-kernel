@@ -24,4 +24,13 @@ config BR2_PACKAGE_GMENU2X_SHOW_CLOCK
 config BR2_PACKAGE_GMENU2X_CPUFREQ
 	bool "Support CPU frequency control"
 
+config BR2_PACKAGE_GMENU2x_WIDTH
+	string "Screen width"
+	help
+	  GMenu2X will pick the largest supported resolution by default.
+	  Use this and the HEIGHT option to force a different one.
+
+config BR2_PACKAGE_GMENU2x_HEIGHT
+	string "Screen height"
+
 endif
