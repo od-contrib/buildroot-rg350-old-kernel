@@ -1,3 +1,12 @@
+config BR2_TARGET_PLATFORM
+	string "Target platform"
+	help
+	  Target platform, e.g. rg350.
+config BR2_TARGET_DEVICE
+	string "Target device"
+	help
+	  Target device, e.g. rg350m.
+
 menu "OpenDingux packages"
 comment "Frontends"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/gmenu2x/Config.in"
