@@ -1,4 +1,4 @@
-# RG350 buildroot
+# RG350 buildroot (new userland, old kernel)
 
 This buildroot can be used to build RG350 cross-compilation toolchain and the OS image.
 
@@ -35,6 +35,8 @@ from various sources, run this command (you only need to do this once):
 board/opendingux/gcw0/download_local_pack.sh
 ~~~
 
+Place any additional OPKs that you want into the `output/images/opks` directory.
+
 To build the OS image, run:
 
 ~~~bash
@@ -58,3 +60,10 @@ To build an updater OPK that can be run directly from the device, run:
 ~~~bash
 board/opendingux/gcw0/make_upgrade.sh
 ~~~
+
+
+## Credits
+
+This repository started as a fork of <https://github.com/TonyJih/RG350_buildroot> (itself a fork of <https://github.com/gcwnow/buildroot>) grafted on top of the latest upstream <https://github.com/buildroot/buildroot> with some updates from <https://github.com/OpenDingux/buildroot>.
+
+The commits from <https://github.com/TonyJih/RG350_buildroot> were all squashed, as rebasing on top of a 2020 buildroot from a 2014 one would otherwise be difficult.
