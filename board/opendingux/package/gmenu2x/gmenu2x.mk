@@ -3,8 +3,8 @@
 # gmenu2x
 #
 #############################################################
-GMENU2X_VERSION = 228fb4b
-GMENU2X_SITE = $(call github,glebm,RG350-gmenu2x,$(GMENU2X_VERSION))
+GMENU2X_VERSION = ee846d6138
+GMENU2X_SITE = $(call github,od-contrib,gmenu2x,$(GMENU2X_VERSION))
 GMENU2X_DEPENDENCIES = sdl sdl_ttf sdl_gfx dejavu libpng
 GMENU2X_CONF_OPTS = -DBIND_CONSOLE=ON -DPLATFORM=$(BR2_PACKAGE_GMENU2X_PLATFORM)
 
