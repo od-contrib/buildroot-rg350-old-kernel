@@ -40,13 +40,13 @@ Place any additional OPKs that you want into the `output/images/opks` directory.
 To build the OS image, run:
 
 ~~~bash
-board/opendingux/gcw0/make_initial_image.sh
+board/opendingux/gcw0/make_initial_image.sh rg350
 ~~~
 
 The image will saved to:
 
 ~~~
-output/images/od-imager/images/sd_image.bin
+output/images/
 ~~~
 
 This image can be flashed directly to the system SD card, e.g. using [balenaEtcher].
