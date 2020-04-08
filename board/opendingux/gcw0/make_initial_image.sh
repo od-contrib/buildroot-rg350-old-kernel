@@ -7,7 +7,15 @@
 
 set -e
 
-make rg350_defconfig BR2_EXTERNAL=board/opendingux:opks
+if [ $# -ne 1 ]; then
+	echo "Usage: $0 <target device>"
+	exit 64
+fi
+
+TARGET_PLATFORM=rg350
+TARGET_DEVICE="$1"
+
+make "${TARGET_DEVICE}_defconfig" BR2_EXTERNAL=board/opendingux:opks
 make world mininit host-od-imager
 
 # Data image (OPKs):
@@ -31,7 +39,7 @@ echo -n > od-imager/vmlinuz.bak
 echo -n > od-imager/modules.squashfs.bak
 
 # Bootloader
-cp ubiboot/ubiboot-rg350.bin od-imager/ubiboot.bin
+cp "ubiboot/ubiboot-${TARGET_PLATFORM}.bin" od-imager/ubiboot.bin
 cd -
 
 # Assemble partitions and the final image
@@ -49,7 +57,7 @@ echo Size:
 du -sh output/images/od-imager/images/sd_image.bin
 
 echo 'Renaming and compressing...'
-NAME="rg350-$(date +'%Y-%m-%d')$(support/scripts/setlocalversion)"
+NAME="${TARGET_DEVICE}-$(date +'%Y-%m-%d')$(support/scripts/setlocalversion)"
 cp output/images/od-imager/images/sd_image.bin "output/images/${NAME}.bin"
 zip output/images/${NAME} "output/images/${NAME}.bin"
 rm "output/images/${NAME}.bin"
