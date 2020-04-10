@@ -1,13 +1,15 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
+from base64 import b64encode
 from collections import defaultdict
 from crypt import crypt
 from ctypes import (
-	POINTER, Structure, Union, byref, cast, cdll, get_errno, pointer,
+	POINTER, Structure, Union, byref, cast, get_errno, pointer,
 	c_void_p, c_char, c_char_p, c_byte, c_ushort, c_int, c_uint,
 	c_uint16
 	)
 from ctypes.util import find_library
+from getpass import getuser
 from os import (
 	O_CREAT, O_EXCL, O_WRONLY,
 	fdopen, link, open as osopen, remove, rename, urandom
@@ -15,101 +17,21 @@ from os import (
 from os.path import join as joinpath, realpath
 from socket import AF_INET, inet_ntop
 from spwd import getspnam
+from sys import argv
 from time import time
 
 import pygame
 
+LOGIN_DISABLED, LOGIN_PASSWORD, LOGIN_NOPASSWORD, LOGIN_UNKNOWN = range(4)
+loginLabels = 'disabled', 'with password', 'without password', 'unknown'
 
-libc = cdll.LoadLibrary(find_library('c'))
-
-def initInterfaceAddrs():
-	# Generic socket address.
-	sa_family_t = c_ushort
-	class struct_sockaddr(Structure):
-		_fields_ = (
-			('sa_family', sa_family_t),
-			('sa_data', c_char * 14),
-			)
-	struct_sockaddr_p = POINTER(struct_sockaddr)
-
-	# IPv4 socket address.
-	struct_in_addr = c_byte * 4
-	class struct_sockaddr_in(Structure):
-		_fields_ = (
-			('sin_family', sa_family_t),
-			('sin_port', c_uint16),
-			('sin_addr', struct_in_addr),
-			)
-	struct_sockaddr_in_p = POINTER(struct_sockaddr_in)
-
-	class union_ifa_ifu(Union):
-		_fields_ = (
-			('ifu_broadaddr', struct_sockaddr_p),
-			('ifu_dstaddr', struct_sockaddr_p),
-			)
-
-	class struct_ifaddrs(Structure):
-		pass
-	struct_ifaddrs_p = POINTER(struct_ifaddrs)
-	struct_ifaddrs_pp = POINTER(struct_ifaddrs_p)
-	struct_ifaddrs._fields_ = (
-		('ifa_next', struct_ifaddrs_p),
-		('ifa_name', c_char_p),
-		('ifa_flags', c_uint),
-		('ifa_addr', struct_sockaddr_p),
-		('ifa_netmask', struct_sockaddr_p),
-		('ifa_ifu', union_ifa_ifu),
-		('ifa_data', c_void_p),
-		)
-
-	getifaddrs = libc.getifaddrs
-	getifaddrs.restype = c_int
-	getifaddrs.argtypes = (struct_ifaddrs_pp, )
-
-	freeifaddrs = libc.freeifaddrs
-	freeifaddrs.restype = None
-	freeifaddrs.argtypes = (struct_ifaddrs_p, )
-
-	global getInterfaceAddrs
-	def getInterfaceAddrs():
-		'''Returns a new dictionary where the keys are interface names and
-		the values are sets of IPv4 addresses in string format.
-		'''
-		interfaceListPtr = struct_ifaddrs_p()
-		result = getifaddrs(byref(interfaceListPtr))
-		if result == -1:
-			raise OSError(get_errno())
-		assert result == 0, result
-
-		ret = defaultdict(set)
-		currInterfacePtr = interfaceListPtr
-		while currInterfacePtr:
-			currInterface = currInterfacePtr.contents
-			name = currInterface.ifa_name
-			addrPtr = currInterface.ifa_addr
-			if not addrPtr:
-				continue
-
-			family = addrPtr.contents.sa_family
-			if family == AF_INET:
-				inetAddr = cast(addrPtr, struct_sockaddr_in_p).contents
-				ret[name].add(inet_ntop(family, inetAddr.sin_addr))
-
-			currInterfacePtr = currInterface.ifa_next
-
-		freeifaddrs(interfaceListPtr)
-		return ret
-
-initInterfaceAddrs()
-
-LOGIN_DISABLED, LOGIN_PASSWORD, LOGIN_NOPASSWORD = xrange(3)
-loginLabels = 'disabled', 'with password', 'without password'
-
-def checkLogin():
+def checkLogin(user):
 	try:
-		fields = getspnam('root')
+		fields = getspnam(user)
 	except KeyError:
 		return LOGIN_DISABLED
+	except PermissionError:
+		return LOGIN_UNKNOWN
 	if fields.sp_pwd == '':
 		return LOGIN_NOPASSWORD
 	elif fields.sp_pwd == '*':
@@ -167,39 +89,39 @@ def checkedUpdateShadowPassword(user, encryptedPassword):
 	global errorLine
 	try:
 		updateShadowPassword(user, encryptedPassword)
-	except OSError, ex:
+	except OSError as ex:
 		errorLine = str(ex)
 		return False
 	else:
 		errorLine = None
 		return True
 
-def doSetRandomPassword():
+def doSetRandomPassword(user):
 	saltBytes = 6
 	pwBytes = 6
 	rnd = urandom(saltBytes + pwBytes)
-	salt = rnd[ : saltBytes].encode('base64').rstrip('=').replace('+', '.')
+	b64 = b64encode(rnd[ : saltBytes])
+	salt = str(b64).rstrip('=').replace('+', '.')
 	password = ''.join(
-		chr(ord('a') + ord(ch) % 26)
-		for ch in rnd[saltBytes : ]
+		chr(ord('a') + ord(ch) % 26) for ch in str(rnd[saltBytes : ])
 		)
 
-	if checkedUpdateShadowPassword('root', crypt(password, salt)):
+	if checkedUpdateShadowPassword(user, crypt(password, salt)):
 		global loginStatus, displayPassword
 		displayPassword = password
 		loginStatus = LOGIN_PASSWORD
 
-def doSetNoPassword():
-	if checkedUpdateShadowPassword('root', ''):
+def doSetNoPassword(user):
+	if checkedUpdateShadowPassword(user, ''):
 		global loginStatus
 		loginStatus = LOGIN_NOPASSWORD
 
-def doSetInvalidPassword():
-	if checkedUpdateShadowPassword('root', '*'):
+def doSetInvalidPassword(user):
+	if checkedUpdateShadowPassword(user, '*'):
 		global loginStatus
 		loginStatus = LOGIN_DISABLED
 
-def doExit():
+def doExit(user):
 	global exitFlag
 	exitFlag = True
 
@@ -214,14 +136,13 @@ def drawString(text, font, pos):
 def paintBackground():
 	w, h = screen.get_size()
 	grad = 80
-	for y in xrange(grad):
+	for y in range(grad):
 		screen.fill((grad - 1 - y, 0, grad - 1 - y), (0, y, w, y))
 	screen.fill((0, 0, 0), (0, grad, w, h - grad))
 
-	drawStringWithShadow('Configure Network', titleFont, (8, 4))
-	drawStringWithShadow('for FTP, SFTP, Telnet, SSH', normalFont, (8, 36))
+	drawStringWithShadow('Configure Password', titleFont, (8, 4))
 
-def paintStatus():
+def paintStatus(user):
 	statusLine = 'Current setting:  login %s' % loginLabels[loginStatus]
 	if errorLine is not None:
 		commentLine = errorLine
@@ -232,35 +153,34 @@ def paintStatus():
 	else:
 		commentLine = ''
 
-	drawString(ipAddrLine, normalFont, (8, 72))
-	drawString('Login with user name: root', normalFont, (8, 88))
-	drawString(statusLine, normalFont, (8, 114))
-	drawString(commentLine, normalFont, (8, 130))
+	drawString('Login with user name: ' + user, normalFont, (8, 30))
+	drawString(statusLine, normalFont, (8, 48))
+	drawString(commentLine, normalFont, (8, 64))
 
 menuOptions = (
 	('Set random password', doSetRandomPassword),
 	('Allow login without password', doSetNoPassword),
-	('Disable password login', doSetInvalidPassword),
+	('Disable login', doSetInvalidPassword),
 	('Exit', doExit),
 	)
 
 def paintMenu():
 	w, h = screen.get_size()
-	y = h - 20 * len(menuOptions)
+	y = h - 18 * len(menuOptions)
 	for idx, (label, _) in enumerate(menuOptions):
 		screen.fill(
 			(64, 0, 64) if idx == currentOption else (16, 0, 16),
 			(4, y, w - 8, 18)
 			)
 		drawString(label, normalFont, (8, y))
-		y += 20
+		y += 18
 
-def paint():
+def paint(user):
 	paintBackground()
-	paintStatus()
+	paintStatus(user)
 	paintMenu()
 
-def handleEvent(event):
+def handleEvent(event, user):
 	global currentOption, exitFlag
 
 	if event.type == pygame.QUIT:
@@ -271,35 +191,24 @@ def handleEvent(event):
 		elif event.key == pygame.K_DOWN:
 			currentOption = (currentOption + 1) % len(menuOptions)
 		elif event.key in (pygame.K_LCTRL, pygame.K_RETURN):
-			menuOptions[currentOption][1]()
+			menuOptions[currentOption][1](user)
 		elif event.key == pygame.K_ESCAPE:
 			exitFlag = True
 
-def mainLoop():
+def mainLoop(user):
 	global currentOption, exitFlag
 	currentOption = len(menuOptions) - 1
 	exitFlag = False
 
 	while not exitFlag:
-		paint()
+		paint(user)
 		pygame.display.flip()
 
-		handleEvent(pygame.event.wait())
+		handleEvent(pygame.event.wait(), user)
 		for event in pygame.event.get():
-			handleEvent(event)
+			handleEvent(event, user)
 
-def init():
-	global ipAddrLine
-	interfaceAddrs = getInterfaceAddrs()
-	del interfaceAddrs['lo']
-	addrItems = [
-		'%s: %s' % (name, ', '.join(sorted(addrs)))
-		for name, addrs in sorted(interfaceAddrs.iteritems())
-		]
-	ipAddrLine = 'IP addrs:  ' + (
-		'  '.join(addrItems) if addrItems else '(no network active)'
-		)
-
+def init(user):
 	global errorLine
 	errorLine = None
 
@@ -307,23 +216,32 @@ def init():
 	pygame.mouse.set_visible(False)
 
 	global screen
-	screen = pygame.display.set_mode((320, 240), pygame.DOUBLEBUF)
+	screen = pygame.display.set_mode((0, 0), pygame.DOUBLEBUF)
+
+	pygame.display.toggle_fullscreen()
 
 	global titleFont, normalFont
 	fontDir = '/usr/share/fonts/truetype/dejavu/'
-	titleFont = pygame.font.Font(fontDir + 'DejaVuSans-Bold.ttf', 24)
+	titleFont = pygame.font.Font(fontDir + 'DejaVuSansCondensed-Bold.ttf', 20)
 	normalFont = pygame.font.Font(fontDir + 'DejaVuSansCondensed.ttf', 13)
 
 	global loginStatus, displayPassword
-	loginStatus = checkLogin()
+	loginStatus = checkLogin(user)
 	displayPassword = None
 
 def exit():
 	pygame.quit()
 
-if __name__ == '__main__':
-	init()
-	mainLoop()
+def main():
+	if len(argv) > 1:
+		user = argv[1]
+	else:
+		user = getuser()
+	init(user)
+	mainLoop(user)
 	exit()
+
+if __name__ == '__main__':
+	main()
 
 # kate: indent-width 4; tab-width 4;
