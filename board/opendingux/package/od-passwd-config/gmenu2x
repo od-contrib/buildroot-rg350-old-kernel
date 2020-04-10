@@ -1,0 +1,5 @@
+title=Password
+description=Change password
+icon=skin:icons/passwd.png
+exec=/usr/sbin/od-passwd-config
+editable=false
