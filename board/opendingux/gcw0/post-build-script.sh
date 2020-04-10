@@ -6,7 +6,7 @@ TARGET_DIR=$1
 for i in ar as ld ld.bfd nm objcopy ranlib strip ; do
 	rm -f ${TARGET_DIR}/usr/bin/$i
 done
-rm -rf ${TARGET_DIR}/usr/mipsel-gcw0-linux-uclibc
+rm -rf ${TARGET_DIR}/usr/mipsel-*-linux-uclibc
 
 # We use xinetd, so no need for a startup script for the SSH daemons
 # and the FTP server.
