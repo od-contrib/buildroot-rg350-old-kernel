@@ -4,6 +4,7 @@ set -e
 set -x
 
 time board/opendingux/gcw0/make_initial_image.sh rg350
+make sdk
 rm -rf output-rg350
 mv output output-rg350
 
