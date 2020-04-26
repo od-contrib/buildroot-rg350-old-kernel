@@ -35,4 +35,7 @@ config BR2_PACKAGE_GMENU2X_HEIGHT
 	string "Screen height"
 	default BR2_TARGET_DEVICE_SCREEN_HEIGHT
 
+config BR2_PACKAGE_GMENU2X_DEFAULT_FALLBACK_FONTS
+	string "A list of default fallback fonts and their sizes"
+
 endif
