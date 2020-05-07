@@ -23,6 +23,7 @@ comment "Libraries"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libxdgmime/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/love2d/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/utf8cpp/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/bennugd/Config.in"
 
 comment "System tools"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/od-passwd-config/Config.in"
