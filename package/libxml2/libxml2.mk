@@ -7,6 +7,7 @@
 LIBXML2_VERSION = 2.9.10
 LIBXML2_SITE = http://xmlsoft.org/sources
 LIBXML2_INSTALL_STAGING = YES
+LIBXML2_AUTORECONF = YES
 LIBXML2_LICENSE = MIT
 LIBXML2_LICENSE_FILES = COPYING
 # 0001-Fix-infinite-loop-in-xmlStringLenDecodeEntities.patch
