@@ -87,7 +87,7 @@ dl https://gameblabla.nl/files/ipk/gcw0/smsplus_gcw0.opk
 
 # Picodrive
 rm -f picodrive.opk
-dl https://gameblabla.nl/files/ipk/gcw0/picodrive_gcw0.opk \
+dl https://gameblabla.nl/files/ipk/gcw0/PicoDrive.opk \
   picodrive.opk
 
 # Genesis Plus GX
@@ -99,7 +99,7 @@ dl "${SEONG_RG350_REPO}/Emulators/ReGBA_2019-12-26.opk" \
   Regba.opk
 
 # Temper | NEC PC-Engine/TurboGrafx-16, CD System
-dl https://gameblabla.nl/files/ipk/gcw0/temper_rs97_gcw0.opk \
+dl https://gameblabla.nl/files/ipk/gcw0/temper_gcw0.opk \
   temper1.24.opk
 
 # SmallPCFX | NEC PC-FX
