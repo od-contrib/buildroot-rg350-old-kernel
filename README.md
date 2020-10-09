@@ -4,13 +4,20 @@ This buildroot can be used to build RG350 cross-compilation toolchain and the OS
 
 ## Build toolchain
 
-First, clone or download the repo and run:
+First, clone the repository with its submodules:
+
+~~~bash
+git clone --recurse-submodules https://github.com/od-contrib/buildroot-rg350-old-kernel.git
+cd buildroot-rg350-old-kernel
+~~~
+
+Then, run this to configure the buildroot:
 
 ~~~bash
 make rg350_defconfig BR2_EXTERNAL=board/opendingux:opks
 ~~~
 
-You only need to run this once.
+You only need to run the command above once.
 
 Now, `export BR2_JLEVEL=0` to compile in parallel.
 
