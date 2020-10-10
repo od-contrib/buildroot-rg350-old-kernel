@@ -1,22 +1,21 @@
 #!/bin/sh
 #
-# Simple script to load/store ALSA volume.
+# Simple script to load/store ALSA parameters (volume...)
 #
 
 VOLUME_STATEFILE=/usr/local/etc/volume.state
-VOLUME_DEVICE=default
-VOLUME_CONTROL=PCM
+CONTROL=PCM
 
 case "$1" in
 	start)
+		echo "Loading sound volume..."
 		if [ -f $VOLUME_STATEFILE ]; then
-			echo "Loading sound volume..."
-			/usr/bin/alsa-setvolume $VOLUME_DEVICE $VOLUME_CONTROL `cat $VOLUME_STATEFILE`
+			/usr/bin/amixer set $CONTROL `cat $VOLUME_STATEFILE`
 		fi
 		;;
 	stop)
 		echo "Storing sound volume..."
-		/usr/bin/alsa-getvolume $VOLUME_DEVICE $VOLUME_CONTROL > $VOLUME_STATEFILE
+		amixer get $CONTROL | sed -n 's/.*Front .*: Playback \([0-9]*\).*$/\1/p' | paste -d "," - - > $VOLUME_STATEFILE
 		;;
 	*)
 		echo "Usage: $0 {start|stop}"
