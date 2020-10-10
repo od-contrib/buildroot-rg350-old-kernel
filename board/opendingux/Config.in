@@ -13,6 +13,7 @@ comment "Frontends"
 
 comment "Libraries"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/allegro/Config.in"
+	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/bennugd/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/devil/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/fluidsynth1/Config.in"
 	source "$BR2_EXTERNAL_OPENDINGUX_PATH/package/libjpeg8/Config.in"
