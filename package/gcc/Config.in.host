@@ -20,6 +20,13 @@ config BR2_GCC_VERSION_CSKY
 	depends on BR2_csky
 	select BR2_TOOLCHAIN_GCC_AT_LEAST_6
 
+config BR2_GCC_VERSION_4_9_X
+	bool "gcc 4.9.x"
+	depends on !BR2_ARCH_NEEDS_GCC_AT_LEAST_5
+	depends on !(BR2_TOOLCHAIN_USES_MUSL && (BR2_powerpc64 || BR2_powerpc64le || BR2_mips64 || BR2_mips64el))
+	depends on !BR2_TOOLCHAIN_USES_GLIBC
+	select BR2_TOOLCHAIN_GCC_AT_LEAST_4_9
+
 config BR2_GCC_VERSION_5_X
 	bool "gcc 5.x"
 	depends on !BR2_ARCH_NEEDS_GCC_AT_LEAST_6
@@ -95,6 +102,7 @@ config BR2_GCC_SUPPORTS_DLANG
 
 config BR2_GCC_VERSION
 	string
+	default "4.9.4"     if BR2_GCC_VERSION_4_9_X
 	default "5.5.0"     if BR2_GCC_VERSION_5_X
 	default "7.5.0"     if BR2_GCC_VERSION_7_X
 	default "8.4.0"     if BR2_GCC_VERSION_8_X
