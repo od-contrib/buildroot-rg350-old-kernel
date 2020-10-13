@@ -35,6 +35,9 @@ rm -f od-imager/apps/*
 if [ -d ../../dl/od_local_pack/ ]; then
 	cp ../../dl/od_local_pack/*.opk od-imager/apps/
 fi
+if [ -d ../../dl/od_local_pack/${TARGET_DEVICE} ]; then
+	cp ../../dl/od_local_pack/${TARGET_DEVICE}/*.opk od-imager/apps/
+fi
 if [ -d opks ]; then
 	cp opks/*.opk od-imager/apps/
 fi
