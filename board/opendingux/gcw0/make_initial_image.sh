@@ -15,6 +15,16 @@ fi
 TARGET_PLATFORM=rg350
 TARGET_DEVICE="$1"
 
+# First, build the linux kernel (it uses older gcc)
+KERNEL_DIR=output-kernel-${TARGET_DEVICE}
+if ! [ -f ${KERNEL_DIR}/vmlinuz.bin ]; then
+	board/opendingux/gcw0/build_kernel.sh $TARGET_DEVICE
+	mkdir -p $KERNEL_DIR
+	mv output/images/vmlinuz.bin output/images/modules.squashfs ${KERNEL_DIR}/
+	rm -rf output
+fi
+echo "Will use linux kernel from ./${KERNEL_DIR}"
+
 make "${TARGET_DEVICE}_defconfig" BR2_EXTERNAL=board/opendingux:opks
 make world mininit host-od-imager
 
@@ -31,8 +41,7 @@ fi
 
 # System image
 cp mininit-syspart od-imager/
-cp vmlinuz.bin od-imager/
-cp modules.squashfs od-imager/
+cp ../../${KERNEL_DIR}/vmlinuz.bin ../../${KERNEL_DIR}/modules.squashfs od-imager/
 cp rootfs.squashfs od-imager/
 # Fallbacks are empty as this is the initial image.
 echo -n > od-imager/vmlinuz.bak
