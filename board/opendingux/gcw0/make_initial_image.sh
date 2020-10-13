@@ -68,6 +68,6 @@ du -sh output/images/od-imager/images/sd_image.bin
 echo 'Renaming and compressing...'
 NAME="${TARGET_DEVICE}-$(date +'%Y-%m-%d')$(support/scripts/setlocalversion)"
 cp output/images/od-imager/images/sd_image.bin "output/images/${NAME}.bin"
-zip output/images/${NAME} "output/images/${NAME}.bin"
+zip "output/images/${NAME}.zip" "output/images/${NAME}.bin"
 rm "output/images/${NAME}.bin"
 du -sh "output/images/${NAME}.zip"
