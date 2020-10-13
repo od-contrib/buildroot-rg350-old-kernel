@@ -30,7 +30,8 @@ dl() {
 declare -r RGH_OD_REPO="https://raw.githubusercontent.com/retrogamehandheld/OpenDingux/master"
 declare -r SEONG_RG350_REPO="https://raw.githubusercontent.com/SeongGino/RetroGame350-AppRepo/master"
 
-mkdir -p dl/od_local_pack/
+mkdir -p dl/od_local_pack/rg350
+mkdir -p dl/od_local_pack/rg350m
 cd dl/od_local_pack/
 
 # Most sources come from a list maintained here:
@@ -95,8 +96,10 @@ dl "${SEONG_RG350_REPO}/Emulators/GenesisPlusGX_2019-12-23.opk" \
   GenplusGX.opk
 
 # ReGBA
-dl "${SEONG_RG350_REPO}/Emulators/ReGBA_2019-12-26.opk" \
-  Regba.opk
+dl https://github.com/jdgleaver/ReGBA/releases/download/1.5/regba_rg350m.opk \
+  rg350m/Regba.opk
+dl https://github.com/jdgleaver/ReGBA/releases/download/1.5/regba_rg350.opk \
+  rg350/Regba.opk
 
 # Temper | NEC PC-Engine/TurboGrafx-16, CD System
 dl https://gameblabla.nl/files/ipk/gcw0/temper_gcw0.opk \
