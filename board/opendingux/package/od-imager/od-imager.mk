@@ -4,7 +4,8 @@
 #
 #############################################################
 
-OD_IMAGER_VERSION = 468172a
+# unmount-retry branch
+OD_IMAGER_VERSION = 2527c1d307
 OD_IMAGER_SITE = $(call github,glebm,imager,$(OD_IMAGER_VERSION))
 
 define HOST_OD_IMAGER_INSTALL_CMDS
