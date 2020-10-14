@@ -3,8 +3,9 @@
 # etna_viv
 #
 ################################################################################
-ETNA_VIV_VERSION = master
-ETNA_VIV_SITE = $(call github,laanwj,etna_viv,$(ETNA_VIV_VERSION))
+ETNA_VIV_VERSION = eab63aef88
+ETNA_VIV_SITE = git://github.com/etnaviv/etna_viv.git
+ETNA_VIV_GIT_SUBMODULES = YES
 ETNA_VIV_INSTALL_STAGING = YES
 # Currently, etna_viv only builds static libs, no point in installing those
 # on the target.
@@ -21,6 +22,11 @@ endif
 ETNA_VIV_DEPENDENCIES = libpng
 
 define ETNA_VIV_BUILD_CMDS
+	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_base.h
+	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_enum.h
+	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_driver.h
+	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_kernel_buffer.h
+	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_types.h
 	$(MAKE) -C $(@D)/attic \
 		GCCPREFIX="$(TARGET_CROSS)" \
 		PLATFORM_CFLAGS="-D_POSIX_C_SOURCE=200809 -D_GNU_SOURCE -DLINUX" \
