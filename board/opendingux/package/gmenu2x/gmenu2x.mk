@@ -5,9 +5,9 @@
 #############################################################
 ifeq ($(BR2_PACKAGE_GMENU2X_PLATFORM),"rg350m")
 # https://github.com/od-contrib/gmenu2x/tree/rg350m-wip
-GMENU2X_VERSION = d5ad43e
+GMENU2X_VERSION = f6113c1
 else
-GMENU2X_VERSION = 8475357
+GMENU2X_VERSION = 7eaa794
 endif
 GMENU2X_SITE = $(call github,od-contrib,gmenu2x,$(GMENU2X_VERSION))
 GMENU2X_DEPENDENCIES = sdl sdl_ttf sdl_gfx dejavu libpng
