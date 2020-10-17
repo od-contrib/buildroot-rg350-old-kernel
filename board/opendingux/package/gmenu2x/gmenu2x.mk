@@ -5,7 +5,7 @@
 #############################################################
 ifeq ($(BR2_PACKAGE_GMENU2X_PLATFORM),"rg350m")
 # https://github.com/od-contrib/gmenu2x/tree/rg350m-wip
-GMENU2X_VERSION = f6113c1
+GMENU2X_VERSION = 6ca1ad4
 else
 GMENU2X_VERSION = 7eaa794
 endif
