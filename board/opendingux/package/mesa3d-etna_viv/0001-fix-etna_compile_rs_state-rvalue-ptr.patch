@@ -1,0 +1,140 @@
+From bed2ac83734ab5cc17a389da7a73d55831336e90 Mon Sep 17 00:00:00 2001
+From: Gleb Mazovetskiy <glex.spb@gmail.com>
+Date: Sun, 18 Oct 2020 11:08:29 +0100
+Subject: [PATCH] fix etna_compile_rs_state rvalue ptr
+
+---
+ src/gallium/drivers/etna/etna_clear_blit.c | 28 ++++++++--------
+ src/gallium/drivers/etna/etna_screen.c     | 38 ++++++++++++----------
+ src/gallium/drivers/etna/etna_surface.c    | 27 +++++++--------
+ 3 files changed, 49 insertions(+), 44 deletions(-)
+
+diff --git a/src/gallium/drivers/etna/etna_clear_blit.c b/src/gallium/drivers/etna/etna_clear_blit.c
+index 89798cb7d6..2902ca176e 100644
+--- a/src/gallium/drivers/etna/etna_clear_blit.c
++++ b/src/gallium/drivers/etna/etna_clear_blit.c
+@@ -78,19 +78,21 @@ void etna_rs_gen_clear_surface(struct etna_ctx *ctx, struct compiled_rs_state *r
+     bool tiled_clear = (surf->surf.padded_width & ETNA_RS_WIDTH_MASK) == 0 &&
+                        (surf->surf.padded_height & ETNA_RS_HEIGHT_MASK) == 0;
+     struct etna_bo *dest_bo = etna_resource(surf->base.texture)->bo;
+-    etna_compile_rs_state(ctx, rs_state, &(struct rs_state){
+-            .source_format = format,
+-            .dest_format = format,
+-            .dest_addr[0] = etna_bo_gpu_address(dest_bo) + surf->surf.offset,
+-            .dest_stride = surf->surf.stride,
+-            .dest_tiling = tiled_clear ? surf->layout : ETNA_LAYOUT_LINEAR,
+-            .dither = {0xffffffff, 0xffffffff},
+-            .width = surf->surf.padded_width, /* These must be padded to 16x4 if !LINEAR, otherwise RS will hang */
+-            .height = surf->surf.padded_height,
+-            .clear_value = {clear_value},
+-            .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_ENABLED1,
+-            .clear_bits = 0xffff
+-        });
++    struct rs_state state = {
++        .source_format = format,
++        .dest_format = format,
++        .dest_addr[0] = etna_bo_gpu_address(dest_bo) + surf->surf.offset,
++        .dest_stride = surf->surf.stride,
++        .dest_tiling = tiled_clear ? surf->layout : ETNA_LAYOUT_LINEAR,
++        .dither = {0xffffffff, 0xffffffff},
++        .width = surf->surf.padded_width, /* These must be padded to 16x4 if
++                                             !LINEAR, otherwise RS will hang */
++        .height = surf->surf.padded_height,
++        .clear_value = {clear_value},
++        .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_ENABLED1,
++        .clear_bits = 0xffff,
++    };
++    etna_compile_rs_state(ctx, rs_state, &state);
+ }
+ 
+ static void etna_pipe_clear(struct pipe_context *pipe,
+diff --git a/src/gallium/drivers/etna/etna_screen.c b/src/gallium/drivers/etna/etna_screen.c
+index 083679a7bb..f70c2cd243 100644
+--- a/src/gallium/drivers/etna/etna_screen.c
++++ b/src/gallium/drivers/etna/etna_screen.c
+@@ -473,24 +473,26 @@ static void etna_screen_flush_frontbuffer( struct pipe_screen *screen,
+ 
+     /* Kick off RS here */
+     struct compiled_rs_state copy_to_screen;
+-    etna_compile_rs_state(ctx, &copy_to_screen, &(struct rs_state){
+-                .source_format = translate_rt_format(rt_resource->base.format, false),
+-                .source_tiling = rt_resource->layout,
+-                .source_addr[0] = rt_resource->pipe_addr[0],
+-                .source_addr[1] =  rt_resource->pipe_addr[1],
+-                .source_stride = rt_resource->levels[level].stride,
+-                .dest_format = drawable->rs_format,
+-                .dest_tiling = ETNA_LAYOUT_LINEAR,
+-                .dest_addr[0] = etna_bo_gpu_address(drawable->bo),
+-                .dest_stride = drawable->stride,
+-                .downsample_x = msaa_xscale > 1,
+-                .downsample_y = msaa_yscale > 1,
+-                .swap_rb = drawable->swap_rb,
+-                .dither = {0xffffffff, 0xffffffff}, // XXX dither when going from 24 to 16 bit?
+-                .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_DISABLED,
+-                .width = drawable->width * msaa_xscale,
+-                .height = drawable->height * msaa_yscale
+-            });
++    struct rs_state state = {
++        .source_format = translate_rt_format(rt_resource->base.format, false),
++        .source_tiling = rt_resource->layout,
++        .source_addr[0] = rt_resource->pipe_addr[0],
++        .source_addr[1] = rt_resource->pipe_addr[1],
++        .source_stride = rt_resource->levels[level].stride,
++        .dest_format = drawable->rs_format,
++        .dest_tiling = ETNA_LAYOUT_LINEAR,
++        .dest_addr[0] = etna_bo_gpu_address(drawable->bo),
++        .dest_stride = drawable->stride,
++        .downsample_x = msaa_xscale > 1,
++        .downsample_y = msaa_yscale > 1,
++        .swap_rb = drawable->swap_rb,
++        .dither = {0xffffffff,
++                   0xffffffff},  // XXX dither when going from 24 to 16 bit?
++        .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_DISABLED,
++        .width = drawable->width * msaa_xscale,
++        .height = drawable->height * msaa_yscale,
++    };
++    etna_compile_rs_state(ctx, &copy_to_screen, &state);
+     etna_submit_rs_state(ctx, &copy_to_screen);
+     DBG_F(ETNA_DBG_FRAME_MSGS,
+             "Queued RS command to flush screen from %08x to %08x stride=%08x width=%i height=%i, ctx %p",
+diff --git a/src/gallium/drivers/etna/etna_surface.c b/src/gallium/drivers/etna/etna_surface.c
+index 81ff2496e1..10c1c2f496 100644
+--- a/src/gallium/drivers/etna/etna_surface.c
++++ b/src/gallium/drivers/etna/etna_surface.c
+@@ -89,19 +89,20 @@ static struct pipe_surface *etna_pipe_create_surface(struct pipe_context *pipe,
+            Currently uses a fixed row size of 64 bytes. Some benchmarking with different sizes may be in order.
+          */
+         struct etna_bo *ts_bo = etna_resource(surf->base.texture)->ts_bo;
+-        etna_compile_rs_state(priv->ctx, &surf->clear_command, &(struct rs_state){
+-                .source_format = RS_FORMAT_A8R8G8B8,
+-                .dest_format = RS_FORMAT_A8R8G8B8,
+-                .dest_addr[0] = etna_bo_gpu_address(ts_bo) + surf->surf.ts_offset,
+-                .dest_stride = 0x40,
+-                .dest_tiling = ETNA_LAYOUT_TILED,
+-                .dither = {0xffffffff, 0xffffffff},
+-                .width = 16,
+-                .height = etna_align_up(surf->surf.ts_size/0x40, 4),
+-                .clear_value = {priv->specs.ts_clear_value},
+-                .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_ENABLED1,
+-                .clear_bits = 0xffff
+-            });
++        struct rs_state state = {
++            .source_format = RS_FORMAT_A8R8G8B8,
++            .dest_format = RS_FORMAT_A8R8G8B8,
++            .dest_addr[0] = etna_bo_gpu_address(ts_bo) + surf->surf.ts_offset,
++            .dest_stride = 0x40,
++            .dest_tiling = ETNA_LAYOUT_TILED,
++            .dither = {0xffffffff, 0xffffffff},
++            .width = 16,
++            .height = etna_align_up(surf->surf.ts_size / 0x40, 4),
++            .clear_value = {priv->specs.ts_clear_value},
++            .clear_mode = VIVS_RS_CLEAR_CONTROL_MODE_ENABLED1,
++            .clear_bits = 0xffff,
++        };
++        etna_compile_rs_state(priv->ctx, &surf->clear_command, &state);
+     } else {
+         etna_rs_gen_clear_surface(priv->ctx, &surf->clear_command, surf, surf->level->clear_value);
+     }
+-- 
+2.25.1
+
