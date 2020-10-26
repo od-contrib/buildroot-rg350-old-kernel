@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-MESA3D_ETNA_VIV_VERSION = pre_rebase_2014_09
-MESA3D_ETNA_VIV_SITE = $(call github,laanwj,mesa,$(MESA3D_ETNA_VIV_VERSION))
+MESA3D_ETNA_VIV_VERSION = 2016_09
+MESA3D_ETNA_VIV_SITE = $(call github,etnaviv,mesa,$(MESA3D_ETNA_VIV_VERSION))
 MESA3D_ETNA_VIV_AUTORECONF = YES
 MESA3D_ETNA_VIV_INSTALL_STAGING = YES
 
