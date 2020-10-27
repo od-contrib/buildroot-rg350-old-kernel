@@ -4,10 +4,7 @@ set -e
 set -x
 
 time board/opendingux/gcw0/make_initial_image.sh rg350
-make sdk
-rm -rf output-rg350
-mv output output-rg350
+make sdk O=output-rg350
 
 time board/opendingux/gcw0/make_initial_image.sh rg350m
-rm -rf output-rg350m
-mv output output-rg350m
+make sdk O=output-rg350m
