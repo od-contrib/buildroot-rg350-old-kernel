@@ -29,8 +29,8 @@ define ETNA_VIV_BUILD_CMDS
 	touch -a $(@D)/attic/galcore_headers/include_v4_uapi/gc_hal_types.h
 	$(MAKE) -C $(@D)/attic \
 		GCCPREFIX="$(TARGET_CROSS)" \
-		PLATFORM_CFLAGS="-D_POSIX_C_SOURCE=200809 -D_GNU_SOURCE -DLINUX" \
-		PLATFORM_CXXFLAGS="-D_POSIX_C_SOURCE=200809 -D_GNU_SOURCE -DLINUX" \
+		PLATFORM_CFLAGS="-DLINUX -I$(@D)/src" \
+		PLATFORM_CXXFLAGS="-DLINUX" \
 		PLATFORM_LDFLAGS="-ldl -lpthread" \
 		GCABI="$(ETNA_VIV_ABI)" \
 		ETNAVIV_PROFILER=1
