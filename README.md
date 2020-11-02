@@ -53,7 +53,7 @@ board/opendingux/gcw0/make_initial_image.sh rg350
 The image will saved to:
 
 ~~~
-output/images/
+output-rg350/images/
 ~~~
 
 This image can be flashed directly to the system SD card, e.g. using [balenaEtcher].
